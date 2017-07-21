@@ -1,0 +1,121 @@
+local db
+
+local database_online	-- Is server_stats Database Online?
+local server = {}		-- 'server_stats' Database Cache
+local database2_online		-- Is account_data Database Online?
+local accountData = {}		-- Account Data Cache
+
+addEvent("onDatabaseLoad", true)	-- Triggers when database is ready
+
+-- Database Cache
+------------------>>
+
+addEventHandler("onResourceStart", resourceRoot, function()
+	db = dbConnect("mysql", "dbname="..cfg.MYSQL_DATABASE..";host="..cfg.MYSQL_HOST..";port="..cfg.MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD)
+	if (not db) then
+		cancelEvent(true, "Unable to connect to MySQL")
+		return
+	end
+	dbExec(db, "CREATE TABLE IF NOT EXISTS `dayz_data`(`id` INT NOT NULL AUTO_INCREMENT, `key` TEXT, `value` TEXT, PRIMARY KEY(id))")
+	dbExec(db, "CREATE TABLE IF NOT EXISTS `account_data`(`id` INT NOT NULL AUTO_INCREMENT, `name` TEXT, PRIMARY KEY(id))")
+	dbQuery(cacheDatabase, db, "SELECT * FROM `dayz_data`")
+	dbQuery(cacheDatabase2, db, "SELECT * FROM `account_data`")
+end)
+
+function cacheDatabase(qh)
+	local result = dbPoll(qh, 0)
+	for i,row in ipairs(result) do
+		server[row.key] = row.value
+	end
+	database_online = true
+	triggerEvent("onDatabaseLoad", resourceRoot, "dayz_data")
+end
+
+function cacheDatabase2(qh)
+	local result = dbPoll(qh, 0)
+	accountData["Console"] = {}
+	for i,row in ipairs(result) do
+		accountData[row.name] = {}
+		for column,value in pairs(row) do
+			if (column ~= "name" or column ~= "id") then
+				if (not accountData["Console"][column]) then
+					accountData["Console"][column] = true
+				end
+				if (value == "true") then value = true end
+				if (value == "false") then value = false end
+				accountData[row.name][column] = value
+			end
+		end
+	end
+	database2_online = true
+	triggerEvent("onDatabaseLoad", resourceRoot, "account_data")
+end
+
+-- Database Exports
+-------------------->>
+
+function setData(key, value)
+	if (not database_online) then return false end
+	if (not key or type(key) ~= "string") then return false end
+	
+	if (server[key] == nil) then
+		dbExec(db, "INSERT INTO `dayz_data`(`key`,`value`) VALUES(?,?)", key, tostring(value))
+	else
+		if (value ~= nil) then
+			dbExec(db, "UPDATE `dayz_data` SET `value`=? WHERE `key`=?", key, value)
+		else
+			dbExec(db, "UPDATE `dayz_data` SET `value`=NULL WHERE `key`=?", key)
+		end
+	end
+	server[key] = value
+	return true
+end
+
+function getData(key)
+	if (not database_online) then return end
+	if (not key or type(key) ~= "string") then return end
+	return tonumber(server[key]) or server[key]
+end
+
+function SAD(account, key, value)
+	if (not database2_online) then return false end
+	if (not account or not key) then return false end
+	if (type(key) ~= "string") then return false end
+	if (isGuestAccount(account)) then return false end
+	local account = getAccountName(account)
+	
+	if (not accountData[account]) then
+		accountData[account] = {}
+		dbExec(db, "INSERT INTO `account_data`(name) VALUES(?)", account)
+	end
+	
+	if (accountData["Console"] and accountData["Console"][key] == nil) then
+		accountData["Console"][key] = true
+		dbExec(db, "ALTER TABLE `account_data` ADD `??` text", key)
+	end
+	
+	accountData[account][key] = value
+	if (value ~= nil) then
+		dbExec(db, "UPDATE `account_data` SET `??`=? WHERE name=?", key, tostring(value), account)
+	else
+		dbExec(db, "UPDATE `account_data` SET `??`=NULL WHERE name=?", key, account)
+	end
+	return true
+end
+
+function GAD(account, key)
+	if (not database2_online) then return nil end
+	if (not account or not key) then return nil end
+	if (type(key) ~= "string") then return nil end
+	if (isGuestAccount(account)) then return end
+	local account = getAccountName(account)
+	
+	if (accountData[account] == nil) then return nil end
+	if (accountData[account][key] == nil) then return nil end
+	
+	return tonumber(accountData[account][key]) or accountData[account][key]
+end
+
+function isDatabaseOnline()
+	return database_online and database2_online
+end

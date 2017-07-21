@@ -1,0 +1,40 @@
+- Spawn System
+	- Spawn Player
+	- Spawn Items
+	- Spawn Zombies
+- Achievements
+- Animal System
+- Status Icons
+	- Weather
+	- Temperature
+	- Hunger
+	- Visibility
+	- Sound
+	- Humanity
+	- Blood
+- Vehicle System
+- Tent System
+- Mods
+- Inventory System
+	- Core (Ares)
+	- Backpack with different slots (Ares)
+	- Map
+	- Compass
+	- Watch
+	- Flashlight
+	- Tent
+	- Weapons
+	- Morphine
+	- Painkiller
+	- Blood bag
+	- Blood test kit
+	- Transfusion Kit
+	- Bandage
+	- Epi-Pen
+	- Antibiothics
+	- Clothing (camouflage)
+	- Vehicle Parts
+- Player
+	- Broken Bones
+	- Blood
+	- Hunger

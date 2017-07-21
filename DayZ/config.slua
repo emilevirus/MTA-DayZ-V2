@@ -1,0 +1,11 @@
+cfg = {
+	-- MYSQL --
+	MYSQL_HOST = "127.0.0.1",
+	MYSQL_PORT = 3304,
+	MYSQL_DATABASE = "DayZ",
+	MYSQL_USER = "DayZ",
+	MYSQL_PASSWORD = "",
+	
+	-- WORLD --
+	DIMENSION = 0, -- In what dimension DayZ runs. Default: 0
+}

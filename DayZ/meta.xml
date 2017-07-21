@@ -1,0 +1,25 @@
+<meta>
+	<info author="Emile" name="DayZ" />
+
+	<script src="config.slua" type="shared"/>
+	<script src="database.slua" type="server"/>
+	<script src="util.slua" type="server"/>
+	<script src="util.lua" type="client"/>
+	<!-- status -->
+	<script src="status/status.lua" type="client"/>
+	<file src="status/images/bg.png" />
+	<file src="status/images/fill.png" />
+	<file src="status/images/eye.png" />
+	<file src="status/images/health.png" />
+	<file src="status/images/humanity.png" />
+	<file src="status/images/hunger.png" />
+	<file src="status/images/sound.png" />
+	<file src="status/images/temperature.png" />
+	
+	<!-- player -->
+	
+	<script src="player/death_ui.lua"	type="client"/>
+			
+	<file src="player/files/death_corners.png" />
+	<file src="player/files/gtav_wasted.mp3" />
+</meta>
